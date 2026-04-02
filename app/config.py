@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from functools import lru_cache
 
@@ -18,13 +18,13 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 45.0
     github_file_concurrency: int = 5
 
-    max_selected_files: int = 12
+    max_selected_files: int = 8
     max_file_bytes_to_fetch: int = 250_000
-    max_file_excerpt_chars: int = 6_000
-    max_file_excerpt_lines: int = 200
-    retry_file_excerpt_chars: int = 3_000
-    retry_file_excerpt_lines: int = 120
-    evidence_char_budget: int = 45_000
+    max_file_excerpt_chars: int = 2_800
+    max_file_excerpt_lines: int = 120
+    retry_file_excerpt_chars: int = 1_600
+    retry_file_excerpt_lines: int = 70
+    evidence_char_budget: int = 20_000
 
     cache_ttl_seconds: int = 900
     max_cache_entries: int = 128
@@ -35,3 +35,4 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+

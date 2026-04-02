@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass, field
 
@@ -105,6 +105,7 @@ class EvidenceAuditTrail:
     estimated_input_tokens: int
     tree_source: str
     tree_truncated: bool
+    phase_timings_ms: dict[str, float] = field(default_factory=dict)
     llm_retry_used: bool = False
     cache_hit: bool = False
 
