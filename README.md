@@ -1,83 +1,75 @@
 # Repository Summarizer API
 
-This project implements the AI Performance Engineering 2026 admission assignment as a FastAPI service. It accepts a public GitHub repository URL, builds a compact evidence packet from the repository, and uses OpenAI to return a human-readable summary, a technology list, and a brief description of the project structure.
+This project implements the AI Performance Engineering 2026 admission assignment as a FastAPI service. It accepts a public GitHub repository URL and returns a human-readable project summary, a list of evidence-backed technologies, and a short description of the repository structure.
 
-## Why This Submission Stands Out
+## Prerequisites
 
-- It does not blindly dump an entire repository into an LLM. The service filters noise, ranks useful files, extracts deterministic technology signals, and sends only a token-budgeted evidence packet.
-- It is traceable. Each request logs an internal evidence audit trail showing which files were selected, which were skipped, why they were chosen, and what evidence supported each technology claim.
-- It is disciplined about cost and latency. The pipeline uses one repository tree call, bounded file fetches, one structured LLM call, and one retry path only when necessary.
+- Python 3.10 or newer
+- Internet access for GitHub API and OpenAI API calls
+- A valid `OPENAI_API_KEY`
 
-## Tech Stack
+## Quickstart
 
-- Python 3.10+
-- FastAPI
-- OpenAI Responses API
-- httpx
-- Pydantic
+Run these commands from the project root.
 
-## Model Choice
+### Windows PowerShell
 
-The default model is `gpt-4.1-mini`, chosen because it offers strong reasoning and structured-output quality while keeping latency and cost low for a single-request summarization workflow. The model name is configurable through `LLM_MODEL`.
-
-## How Repository Contents Are Handled
-
-The service first fetches repository metadata, languages, and the directory tree from the GitHub API without cloning the repository. It skips binaries, lockfiles, generated folders, build artifacts, and other low-signal content.
-
-From the remaining files, it prioritizes the most informative evidence:
-
-- `README*` and top-level docs
-- manifests such as `pyproject.toml`, `package.json`, `go.mod`, `Cargo.toml`
-- runtime and deploy configs such as `Dockerfile` and workflow files
-- likely entrypoints such as `main.py`, `server.ts`, `app.py`
-- representative source files from `src/`, `app/`, `cmd/`, and similar directories
-
-Large repositories are handled with a strict context budget:
-
-- at most 12 files are selected
-- each file excerpt is capped by lines and characters
-- the final evidence packet is capped before the LLM call
-- if the first LLM result is weak or malformed, the service retries once with an even smaller packet
-
-For repositories with weak READMEs, the service still detects technologies by combining:
-
-- GitHub language metadata
-- manifest dependencies
-- runtime and deployment files
-- source import fingerprints
-- directory structure hints
-
-## Setup
-
-1. Create and activate a virtual environment.
+1. Create a virtual environment:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
 ```
 
-On macOS or Linux:
+2. Install dependencies.
+
+If PowerShell activation works on your machine:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+If PowerShell blocks activation, use the virtual environment directly without activating it:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+3. Set the API key:
+
+```powershell
+$env:OPENAI_API_KEY="your_api_key_here"
+```
+
+Optional:
+
+```powershell
+$env:GITHUB_TOKEN="your_github_token_here"
+$env:LLM_MODEL="gpt-4.1-mini"
+```
+
+4. Start the server:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+### macOS or Linux
+
+1. Create and activate a virtual environment:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-2. Install dependencies.
+2. Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-3. Set your OpenAI API key.
-
-PowerShell:
-
-```powershell
-$env:OPENAI_API_KEY="your_api_key_here"
-```
-
-macOS or Linux:
+3. Set the API key:
 
 ```bash
 export OPENAI_API_KEY="your_api_key_here"
@@ -85,24 +77,26 @@ export OPENAI_API_KEY="your_api_key_here"
 
 Optional:
 
-- `LLM_MODEL` to override the default model
-- `GITHUB_TOKEN` to reduce GitHub API rate-limit risk for repeated testing
-
-4. Start the server.
-
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+export GITHUB_TOKEN="your_github_token_here"
+export LLM_MODEL="gpt-4.1-mini"
 ```
 
-## Example Request
+4. Start the server:
 
 ```bash
-curl -X POST http://localhost:8000/summarize \
-  -H "Content-Type: application/json" \
-  -d '{"github_url": "https://github.com/psf/requests"}'
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Expected response shape:
+## Verify the API
+
+- Exposes `POST /summarize`
+- Accepts a request body like `{"github_url": "https://github.com/psf/requests"}`
+- Fetches repository metadata and selected contents from the GitHub API
+- Builds a compact evidence packet instead of sending the whole repository to the LLM
+- Uses the OpenAI Responses API to generate structured output
+
+The default response shape matches the assignment contract exactly:
 
 ```json
 {
@@ -112,13 +106,190 @@ Expected response shape:
 }
 ```
 
+On error, the service returns:
+
+```json
+{
+  "status": "error",
+  "message": "Description of what went wrong"
+}
+```
+
+## API Usage
+
+### Request
+
+`POST /summarize`
+
+Request body:
+
+```json
+{
+  "github_url": "https://github.com/psf/requests"
+}
+```
+
+### Bash or macOS/Linux `curl`
+
+```bash
+curl -X POST http://localhost:8000/summarize \
+  -H "Content-Type: application/json" \
+  -d '{"github_url": "https://github.com/psf/requests"}'
+```
+
+### PowerShell
+
+Using `Invoke-RestMethod` is the most reliable option in PowerShell:
+
+```powershell
+$body = @{ github_url = "https://github.com/psf/requests" } | ConvertTo-Json -Compress
+Invoke-RestMethod -Method Post `
+  -Uri "http://localhost:8000/summarize" `
+  -ContentType "application/json" `
+  -Body $body
+```
+
+### Interactive docs
+
+FastAPI docs are available at:
+
+- `http://localhost:8000/docs`
+
+## Why This Submission Is Strong
+
+- It does not dump an entire repository into the LLM. The service filters noise, ranks useful files, extracts deterministic technology signals, and sends only a bounded evidence packet.
+- It is traceable. Runtime logs include an internal evidence audit showing which files were selected, which were skipped, why they were chosen, and what evidence supported each technology claim.
+- It is disciplined about performance. The pipeline uses one repository tree call, bounded file fetches, one structured LLM call, and one retry path only when necessary.
+- It is conservative when evidence is weak. The system prefers evidence-backed technologies over speculative or noisy labels.
+
+## Stack
+
+- Python 3.10+
+- FastAPI
+- OpenAI Responses API
+- httpx
+- Pydantic
+
+## Model Choice
+
+The default model is `gpt-4.1-mini`. I chose it because it provides strong structured-output reliability and good summarization quality at a reasonable latency and cost for a single-request repository analysis workflow.
+
+The model name can be changed with `LLM_MODEL`.
+
+## How Repository Contents Are Handled
+
+The service uses the GitHub API and does not clone repositories locally.
+
+It first fetches:
+
+- repository metadata
+- the default branch
+- GitHub language metadata
+- the repository tree
+
+It then filters out low-value or unsafe content such as:
+
+- binaries and media files
+- lock files
+- generated folders
+- vendored dependencies
+- build artifacts
+- cache directories
+- oversized files
+- non-UTF8 content
+
+From the remaining candidates, it prioritizes high-signal files such as:
+
+- `README*`
+- top-level manifests like `pyproject.toml`, `package.json`, `go.mod`, `Cargo.toml`
+- runtime and deployment configs like `Dockerfile`
+- GitHub workflow files when they add operational context
+- likely entrypoints like `main.py`, `server.ts`, `app.py`
+- representative source files from `src/`, `app/`, `cmd/`, and similar directories
+
+## Context Management Strategy
+
+Large repositories are handled with strict limits before the LLM call:
+
+- at most 8 files are selected by default
+- source files are compressed into imports, signatures, framework clues, and short module notes
+- manifests and infra files are distilled into dependency, script, service, and runtime highlights
+- the final evidence packet is capped before it is sent to the model
+- if the first LLM result is malformed or too weak, the service retries once with a smaller packet
+
+This keeps the service usable on larger repositories and avoids sending unnecessary tokens.
+
+## How Technologies Are Inferred
+
+For repositories with weak or incomplete READMEs, the service still detects technologies by combining:
+
+- GitHub language metadata
+- manifest dependencies
+- runtime and deployment files
+- source import fingerprints
+- source signatures and framework clues
+- directory structure hints
+
+The final `technologies` output is biased toward evidence-backed items rather than whatever the LLM happens to guess.
+
+## Output Style
+
+The service asks the model to return:
+
+- a short human-readable summary of what the project does
+- a deduplicated technology list
+- a short description of the repository structure
+
+The summarizer also lightly normalizes the final summary so that it reads like plain prose rather than markdown or code-style text.
+
 ## Running Tests
 
 ```bash
 pytest
 ```
 
-## Notes
+## Runtime Logs
 
-- The default API response intentionally stays exact to the assignment contract: only `summary`, `technologies`, and `structure`.
-- Debug evidence is logged internally instead of being returned by default, so the service remains grader-friendly while still being explainable.
+The public API response stays exact to the assignment contract, but the service logs useful internal diagnostics:
+
+- `summary_completed`
+- `summary_phase_timings`
+- `evidence_audit`
+
+These logs make it easy to inspect:
+
+- selected and skipped files
+- evidence size and token estimates
+- actual input and output token usage
+- per-phase latency
+- evidence supporting each detected technology
+
+## Troubleshooting
+
+### PowerShell blocks virtual environment activation
+
+Use the environment directly:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+### The API returns a provider quota error
+
+This project uses `OPENAI_API_KEY`. ChatGPT Plus does not automatically include OpenAI API billing. Make sure the API project tied to the key has active quota.
+
+### GitHub rate limits occur during repeated testing
+
+Set `GITHUB_TOKEN` to reduce GitHub API rate-limit risk for public repositories.
+
+### A response looks cached during repeated local testing
+
+The service keeps a small in-memory cache keyed by repository freshness. Restart the server if you want to guarantee a fresh uncached local run after code changes.
+
+## Submission Notes
+
+- The endpoint contract matches the assignment format exactly.
+- API keys are loaded from environment variables and are never hardcoded.
+- The implementation uses OpenAI as the LLM provider, which is allowed by the assignment as an alternative to Nebius.
+- The README is written so an evaluator can start from a clean machine with Python installed and run the service step by step.

@@ -80,3 +80,9 @@
 - GitHub access is unauthenticated by default for public repos, but optional `GITHUB_TOKEN` support should be added to reduce rate-limit risk.
 - Do not add extra required response fields or rely on extra endpoints for grading.
 - If time gets tight, keep the exact endpoint, filtering and ranking logic, strict context budget, retry path, logging, and README quality; trim only optional polish beyond that.
+
+
+{
+  "github_url": "https://github.com/psf/requests"
+}
+

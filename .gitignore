@@ -33,6 +33,7 @@ dist/
 .vscode/
 .DS_Store
 Thumbs.db
+plans.md
 
 # Runtime logs and local request payloads
 *.log

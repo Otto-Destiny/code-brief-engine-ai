@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 EXCLUDED_DIRECTORIES = {
     ".git",
@@ -102,6 +102,7 @@ MANIFEST_FILE_NAMES = {
 DOC_DIR_HINTS = {"doc", "docs"}
 TEST_DIR_HINTS = {"spec", "specs", "test", "tests", "__tests__"}
 SOURCE_DIR_HINTS = {"api", "app", "backend", "client", "cmd", "frontend", "internal", "lib", "pkg", "server", "src"}
+DOC_BUILD_FILE_NAMES = {"makefile"}
 CONFIG_NAMES = {
     ".gitlab-ci.yml",
     ".python-version",
@@ -115,6 +116,7 @@ CONFIG_NAMES = {
     "netlify.toml",
 }
 ENTRYPOINT_NAMES = {"app", "asgi", "cli", "index", "main", "manage", "server", "wsgi"}
+NON_STACK_LANGUAGE_IGNORES = {"Batchfile", "Dockerfile", "Makefile", "Roff"}
 
 FRAMEWORK_DEPENDENCY_MAP = {
     "@nestjs/common": "NestJS",

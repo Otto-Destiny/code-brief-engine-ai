@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import asyncio
 import json
@@ -140,7 +140,9 @@ class OpenAILLMService:
                                 "Analyze this repository evidence and return JSON with keys summary, technologies, and structure. "
                                 "Requirements: summary must be 2-4 sentences; technologies must contain 3-8 deduplicated technologies, "
                                 "languages, frameworks, libraries, or infrastructure components directly supported by the evidence; "
-                                "structure must be 2-4 sentences describing how the repository is organized.\n\n"
+                                "structure must be 2-4 sentences describing how the repository is organized. "
+                                "Write plain natural prose, not markdown or code formatting. "
+                                "Do not use backticks, markdown emphasis, or quotation marks around the project name in the summary.\n\n"
                                 f"{packet.text}"
                             ),
                         }
@@ -202,3 +204,5 @@ class OpenAILLMService:
             "input_tokens": int(getattr(usage, "input_tokens", 0) or 0),
             "output_tokens": int(getattr(usage, "output_tokens", 0) or 0),
         }
+
+
