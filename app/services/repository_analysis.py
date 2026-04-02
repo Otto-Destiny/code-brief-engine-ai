@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import ast
 import configparser
@@ -37,7 +37,7 @@ from app.repo_rules import (
 
 try:
     import tomllib
-except ModuleNotFoundError:  # pragma: no cover - Python 3.10 fallback
+except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib
 
 
@@ -1130,6 +1130,7 @@ def _unique(values) -> list[str]:
         seen.add(key)
         result.append(normalized)
     return result
+
 
 
 

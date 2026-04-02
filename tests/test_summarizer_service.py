@@ -150,7 +150,7 @@ def test_summarizer_service_does_not_retry_non_retryable_llm_failures() -> None:
             await service.summarize("https://github.com/acme/demo", request_id="req-3")
         except AppError as exc:
             assert exc.message == "LLM request failed."
-        else:  # pragma: no cover - defensive failure branch
+        else:  # pragma: no cover
             raise AssertionError("Expected summarize() to propagate the non-retryable LLM failure.")
 
     asyncio.run(run_test())
@@ -298,4 +298,5 @@ def test_summarizer_service_normalizes_summary_style_artifacts() -> None:
         )
 
     asyncio.run(run_test())
+
 
