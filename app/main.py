@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 import time
@@ -117,7 +117,7 @@ def create_app(summarizer: RepositorySummarizer | None = None) -> FastAPI:
 def _build_github_headers(settings: Settings) -> dict[str, str]:
     headers = {
         "Accept": "application/vnd.github+json",
-        "User-Agent": "nebius-assignment-repo-summarizer",
+        "User-Agent": "repository-summarizer-api",
     }
     if settings.github_token:
         headers["Authorization"] = f"Bearer {settings.github_token}"
@@ -171,3 +171,4 @@ def _register_exception_handlers(app: FastAPI) -> None:
 
 
 app = create_app()
+

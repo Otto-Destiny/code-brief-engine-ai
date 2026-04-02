@@ -61,7 +61,7 @@ class OpenAILLMService:
                     "LLM request failed.",
                     details=self._extract_error_details(exc),
                 ) from exc
-        except Exception as exc:  # pragma: no cover - defensive wrapper around SDK errors
+        except Exception as exc:  # pragma: no cover
             raise AppError(502, "LLM request failed.", details=self._extract_error_details(exc)) from exc
 
         output_text = getattr(response, "output_text", None)
@@ -204,5 +204,6 @@ class OpenAILLMService:
             "input_tokens": int(getattr(usage, "input_tokens", 0) or 0),
             "output_tokens": int(getattr(usage, "output_tokens", 0) or 0),
         }
+
 
 

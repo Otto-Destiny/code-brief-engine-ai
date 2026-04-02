@@ -1,6 +1,6 @@
 # Repository Summarizer API
 
-This project implements the AI Performance Engineering 2026 admission assignment as a FastAPI service. It accepts a public GitHub repository URL and returns a human-readable project summary, a list of evidence-backed technologies, and a short description of the repository structure.
+This project is a FastAPI service that accepts a public GitHub repository URL and returns a human-readable project summary, a list of evidence-backed technologies, and a short description of the repository structure.
 
 ## Prerequisites
 
@@ -96,7 +96,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 - Builds a compact evidence packet instead of sending the whole repository to the LLM
 - Uses the OpenAI Responses API to generate structured output
 
-The default response shape matches the assignment contract exactly:
+The default response shape is:
 
 ```json
 {
@@ -155,12 +155,12 @@ FastAPI docs are available at:
 
 - `http://localhost:8000/docs`
 
-## Why This Submission Is Strong
+## Design Highlights
 
 - It does not dump an entire repository into the LLM. The service filters noise, ranks useful files, extracts deterministic technology signals, and sends only a bounded evidence packet.
 - It is traceable. Runtime logs include an internal evidence audit showing which files were selected, which were skipped, why they were chosen, and what evidence supported each technology claim.
 - It is disciplined about performance. The pipeline uses one repository tree call, bounded file fetches, one structured LLM call, and one retry path only when necessary.
-- It is conservative when evidence is weak. The system prefers evidence-backed technologies over speculative or noisy labels.
+- It is careful when evidence is weak. The system prefers evidence-backed technologies over speculative or noisy labels.
 
 ## Stack
 
@@ -250,7 +250,7 @@ pytest
 
 ## Runtime Logs
 
-The public API response stays exact to the assignment contract, but the service logs useful internal diagnostics:
+The public API response stays minimal, but the service logs useful internal diagnostics:
 
 - `summary_completed`
 - `summary_phase_timings`
@@ -277,7 +277,7 @@ Use the environment directly:
 
 ### The API returns a provider quota error
 
-This project uses `OPENAI_API_KEY`. ChatGPT Plus does not automatically include OpenAI API billing. Make sure the API project tied to the key has active quota.
+Make sure the API key is valid and has active API quota or billing enabled.
 
 ### GitHub rate limits occur during repeated testing
 
@@ -287,9 +287,9 @@ Set `GITHUB_TOKEN` to reduce GitHub API rate-limit risk for public repositories.
 
 The service keeps a small in-memory cache keyed by repository freshness. Restart the server if you want to guarantee a fresh uncached local run after code changes.
 
-## Submission Notes
+## Notes
 
-- The endpoint contract matches the assignment format exactly.
+- The endpoint contract matches the documented request and response format.
 - API keys are loaded from environment variables and are never hardcoded.
-- The implementation uses OpenAI as the LLM provider, which is allowed by the assignment as an alternative to Nebius.
-- The README is written so an evaluator can start from a clean machine with Python installed and run the service step by step.
+- The implementation uses OpenAI as the LLM provider.
+- The README is written so the project can be started from a clean machine with Python installed.
